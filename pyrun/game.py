@@ -2,6 +2,7 @@
 import pygame
 import sys
 import time
+import webbrowser
 from player import Player
 from game_board import GameBoard
 from trump import Trump
@@ -38,6 +39,7 @@ class Game:
         self.draw_card_button_rect = pygame.Rect(SCREEN_WIDTH - BUTTON_WIDTH - 20, 20, BUTTON_WIDTH, BUTTON_HEIGHT)
         self.next_level_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - BUTTON_WIDTH // 2, 
                                                  SCREEN_HEIGHT - BUTTON_HEIGHT - 70, BUTTON_WIDTH, BUTTON_HEIGHT)
+        self.open_browser_button_rect = pygame.Rect(SCREEN_WIDTH - BUTTON_WIDTH - 20, 20 + BUTTON_HEIGHT + 10, BUTTON_WIDTH, BUTTON_HEIGHT)
         self.game_message = ""  # 显示消息如"Trump到达白宫"或"关卡完成"
         self.message_timer = 0  # 显示消息的时间
         
@@ -80,6 +82,16 @@ class Game:
                             self.game_message = f"Draw failed. Currency: {self.player.currency}"
                         self.message_timer = FPS * 2
                         return  # 消耗点击
+
+                    if self.open_browser_button_rect.collidepoint(mouse_pos):
+                        print("Open Browser button clicked")
+                        try:
+                            webbrowser.open("http://localhost:5173")
+                            self.game_message = "Opening browser..."
+                        except Exception as e:
+                            self.game_message = f"Failed to open browser: {e}"
+                        self.message_timer = FPS * 2
+                        return
 
                     if not self.level_active and self.next_level_button_rect.collidepoint(mouse_pos):
                         if self.trump_score > 0 or self.player.score > 0:  # 如果一轮已经结束
@@ -236,6 +248,12 @@ class Game:
         pygame.draw.rect(self.screen, BLACK, self.draw_card_button_rect, 2)  # 边框
         draw_text = self.small_font.render("Draw Meme (10)", True, BLACK)
         self.screen.blit(draw_text, (self.draw_card_button_rect.x + 10, self.draw_card_button_rect.y + 15))
+        
+        # 绘制"Open Browser"按钮
+        pygame.draw.rect(self.screen, LIGHT_BLUE, self.open_browser_button_rect)
+        pygame.draw.rect(self.screen, BLACK, self.open_browser_button_rect, 2)
+        browser_text = self.small_font.render("Open WebApp", True, BLACK)
+        self.screen.blit(browser_text, (self.open_browser_button_rect.x + 10, self.open_browser_button_rect.y + 15))
         
         # 绘制分数和货币
         score_text = self.small_font.render(f"Player: {self.player.score} | Trump: {self.trump_score}", True, BLACK)
