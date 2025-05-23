@@ -1,0 +1,220 @@
+/* 基础样式 */
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: transparent;
+  font-family: Arial, sans-serif;
+}
+
+#smiley-app {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 宠物容器样式 */
+#pet-container {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  cursor: move;
+  user-select: none;
+  z-index: 1000;
+}
+
+.desktop-pet {
+  width: 100%;
+  height: 100%;
+}
+
+/* 设置图标样式 */
+.gear-icon-container {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+}
+
+.gear-icon {
+  font-size: 16px;
+  display: block;
+}
+
+/* 账户列表模态框 */
+.account-list-modal {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 320px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  color: #333;
+  z-index: 999;
+}
+
+.account-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.account-list-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+}
+
+.account-list-content {
+  padding: 16px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.account-list-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* 按钮样式 */
+.connect-wallet-button {
+  background: #4299e1;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.connect-wallet-button:hover {
+  background: #3182ce;
+}
+
+.connect-wallet-button:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+}
+
+.remove-wallet-button {
+  background: #f56565;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.remove-wallet-button:hover {
+  background: #e53e3e;
+}
+
+/* 账户项样式 */
+.account-item {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.account-item:last-child {
+  border-bottom: none;
+}
+
+.account-icon {
+  font-size: 24px;
+  margin-right: 12px;
+}
+
+.account-details {
+  margin-bottom: 8px;
+}
+
+.account-name {
+  font-weight: bold;
+  font-size: 16px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.account-address {
+  color: #718096;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.account-address:hover {
+  text-decoration: underline;
+  color: #4299e1;
+}
+
+.account-balance-container {
+  background: #f7fafc;
+  padding: 8px;
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+.balance-label {
+  font-size: 12px;
+  color: #718096;
+}
+
+.balance-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2d3748;
+  margin: 4px 0;
+}
+
+.balance-updated {
+  font-size: 11px;
+  color: #a0aec0;
+}
+
+/* 状态消息 */
+.empty-message, .loading-message {
+  text-align: center;
+  color: #718096;
+  padding: 24px 0;
+}
+
+.help-text {
+  text-align: center;
+  font-size: 12px;
+  color: #a0aec0;
+  margin-top: 4px;
+}
+
+.wallet-error {
+  color: #e53e3e;
+  text-align: center;
+  padding: 8px;
+  margin-bottom: 8px;
+  background: #fff5f5;
+  border-radius: 4px;
+}
