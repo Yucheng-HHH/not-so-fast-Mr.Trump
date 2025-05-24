@@ -1,5 +1,10 @@
 # config.py
 import pygame
+import os # <--- 添加导入
+
+# --- Determine the absolute path to the directory config.py is in ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ASSETS_DIR = os.path.join(BASE_DIR, "assets") # <--- 构建assets文件夹的绝对路径
 
 # --- Game Settings ---
 SCREEN_WIDTH = 1024
@@ -45,19 +50,17 @@ BUTTON_HEIGHT = 50
 
 # --- Image Asset Paths (REPLACE WITH YOUR ACTUAL PATHS) ---
 # Create an 'assets' folder in your project directory for these
-ASSET_PATH = "assets/" # Make sure this folder exists
+# ASSET_PATH = "assets/" # No longer used directly like this
 IMAGE_PATHS = {
-    "white_house": ASSET_PATH + "white_house.png", # Placeholder
-    "trump": ASSET_PATH + "trump.png",           # Placeholder
-    "cell_bg": ASSET_PATH + "cell_bg.png",         # Placeholder
-    # Add paths for your memes, e.g.:
-    "Pepe": ASSET_PATH + "pepe.png",
-    "Doge": ASSET_PATH + "doge.png",
-    "Stonks": ASSET_PATH + "stonks.png",
-    "Grumpy Cat": ASSET_PATH + "grumpy_cat.png",
-    "Distracted BF": ASSET_PATH + "distracted_bf.png",
-    # Default meme image if specific one not found
-    "default_meme": ASSET_PATH + "default_meme.png"
+    "white_house": os.path.join(ASSETS_DIR, "white_house.png"),
+    "trump": os.path.join(ASSETS_DIR, "trump.png"),
+    "cell_bg": os.path.join(ASSETS_DIR, "cell_bg.png"),
+    "Pepe": os.path.join(ASSETS_DIR, "pepe.png"),
+    "Doge": os.path.join(ASSETS_DIR, "doge.png"),
+    "Stonks": os.path.join(ASSETS_DIR, "stonks.png"),
+    "Grumpy Cat": os.path.join(ASSETS_DIR, "grumpy_cat.png"),
+    "Distracted BF": os.path.join(ASSETS_DIR, "distracted_bf.png"),
+    "default_meme": os.path.join(ASSETS_DIR, "default_meme.png")
 }
 
 # Predefined Meme types (name, base_damage, star_rating, image_key - refers to IMAGE_PATHS)
@@ -71,6 +74,7 @@ PREDEFINED_MEMES_POOL = [
 
 # Helper function to load images (and handle missing images)
 def load_image(path, size=None):
+    # The 'path' received here will now be an absolute path from IMAGE_PATHS
     try:
         image = pygame.image.load(path)
         if path.endswith(".png"): # Ensure alpha transparency for PNGs

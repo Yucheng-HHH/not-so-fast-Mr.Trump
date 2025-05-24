@@ -4,10 +4,10 @@
 
 ## 🌟 项目特色
 
-- **多端支持**: Web DApp、桌面应用、独立Python游戏
+- **多端支持**: Web DApp、Node.js 后端服务、独立Python游戏
 - **区块链集成**: 基于 Sui 区块链，支持钱包连接和智能合约交互
 - **塔防玩法**: 经典的塔防游戏机制，策略性强
-- **现代技术栈**: React + TypeScript + Electron + Move智能合约
+- **现代技术栈**: React + TypeScript + Vite + Node.js/Express + Pygame + Move智能合约
 
 ## 🛠️ 技术栈
 
@@ -17,15 +17,18 @@
 - **Vite** - 快速构建工具
 - **Radix UI** - 现代化UI组件库
 
+### 后端服务
+- **Node.js** - JavaScript 运行时
+- **Express.js** - Web应用框架 (用于API服务)
+- **CORS** - 处理跨域资源共享
+
 ### 区块链集成
 - **Sui 区块链** - 高性能Layer1区块链
 - **Move语言** - 智能合约开发
 - **@mysten/dapp-kit** - Sui DApp开发工具包
 
-### 桌面应用
-- **Electron** - 跨平台桌面应用框架
-- **Express** - 内置API服务器
-- **SQLite** - 本地数据存储
+### 桌面应用 (已移除)
+- ~~Electron - 跨平台桌面应用框架~~
 
 ### 游戏客户端
 - **Python** - 游戏逻辑开发
@@ -35,33 +38,27 @@
 
 ```
 memeVsTrump/
-├── src/                    # Web应用源码
-│   ├── App.tsx            # 主应用组件
-│   ├── Counter.tsx        # 计数器组件
-│   ├── SaveWalletButton.tsx # 钱包功能
-│   └── networkConfig.ts   # Sui网络配置
-├── electron/              # Electron桌面应用
-│   ├── main.cjs          # 主进程
-│   ├── api-server.cjs    # API服务器
-│   └── database.cjs      # 数据库操作
+├── src/                    # Web应用源码 (前端)
+├── public/               # 静态资源 (前端使用, 构建时复制)
 ├── pyrun/                # Python游戏客户端
+│   ├── main.py           # Python游戏入口
 │   ├── game.py           # 游戏主逻辑
-│   ├── player.py         # 玩家管理
-│   ├── trump.py          # Trump角色
-│   └── meme_card.py      # Meme卡片
+│   ├── config.py         # Python游戏配置 (包含资源路径修正)
+│   └── assets/           # Python游戏资源
+├── server/               # Node.js 后端服务器
+│   ├── index.cjs         # 后端服务器主文件 (CommonJS模块)
+│   └── wallets.json      # 后端保存的钱包数据
 ├── move/                 # Move智能合约
 │   └── counter/          # 计数器合约
-├── public/               # 静态资源
-│   ├── launcher.html     # 游戏启动器
-│   └── assets/           # 游戏资源
-└── package.json          # 项目配置
+├── package.json          # 项目配置和脚本
+└── README.md             # 项目说明文档
 ```
 
 ## 🚀 快速开始
 
 ### 环境要求
 
-- **Node.js** 18+
+- **Node.js** 18+ (包含 npm)
 - **Python** 3.8+
 - **Git**
 - **Sui CLI** (用于智能合约开发)
@@ -73,85 +70,85 @@ memeVsTrump/
 git clone <your-repo-url>
 cd memeVsTrump
 
-# 安装Node.js依赖
-npm install
+# 安装Node.js依赖 (包括前端和后端)
+npm install express cors concurrently nodemon --save-dev # 开发依赖
+npm install # 安装其他在package.json中定义的依赖
 
-# 安装Python依赖
+# 设置Python虚拟环境并安装依赖
 cd pyrun
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
+# Windows激活:
+# .\venv\Scripts\activate
+# macOS/Linux激活:
+# source venv/bin/activate
+pip install -r requirements.txt # 确保pygame等已在requirements.txt中
 cd ..
 ```
 
-### 运行项目
+### 运行项目 (开发模式)
 
-#### 🌐 Web DApp 开发模式
 ```bash
 npm run dev
 ```
-访问: http://localhost:5173
+这将同时启动：
+- **前端开发服务器**: 访问 `http://localhost:5173`
+- **后端API服务器**: 监听 `http://localhost:3001` (前端会调用此API保存钱包数据)
+- **Python Pygame游戏**: 游戏窗口会自动弹出
 
-#### 🖥️ Electron 桌面应用
-```bash
-# 开发模式
-npm run electron:dev
+Python游戏的资源（图片等）现在会从 `pyrun/assets/` 目录正确加载，不受启动工作目录影响。
+钱包数据会由前端发送到后端API，并保存在项目根目录下的 `server/wallets.json` 文件中。
 
-# 构建应用
-npm run electron:build
-```
+### 其他脚本
 
-#### 🐍 Python 游戏
-```bash
-cd pyrun
-python main.py
-```
-
-#### 📝 智能合约开发
-```bash
-cd move/counter
-sui move build
-sui move test
-```
+- **仅启动前端**: `npm run dev:frontend`
+- **仅启动后端**: `npm run dev:backend`
+- **仅启动Python游戏**: `npm run dev:python` (确保Python虚拟环境已配置)
 
 ## 🎮 游戏玩法
 
-1. **选择Meme角色**: 使用游戏货币抽取不同的Meme卡片
-2. **战略布局**: 在游戏板上策略性地放置Meme角色
-3. **阻止Trump**: 防止Trump到达白宫
-4. **升级装备**: 通过胜利获得更多资源和强力Meme
+1. **连接钱包**: 在Web应用 (`http://localhost:5173`) 中连接您的Sui钱包。
+2. **保存钱包信息**: 点击"保存钱包信息"按钮，数据将通过后端API保存到 `server/wallets.json`。
+3. **运行Python游戏**: Python游戏独立运行，展示Meme对战Trump的塔防场景。
+4. **(未来)**: 可以将Web端保存的钱包数据或游戏状态与Python游戏进行某种形式的交互。
 
 ## 🔧 开发指南
 
-### 添加新的Meme角色
+### 前端 (React - `src/`)
+- 修改UI组件、与Sui区块链交互、调用后端API。
 
-1. 在 `pyrun/config.py` 的 `PREDEFINED_MEMES_POOL` 中添加新角色定义
-2. 在 `public/assets/` 中添加角色图片
-3. 更新 `pyrun/meme_card.py` 添加特殊能力（如需要）
+### 后端 (Node.js/Express - `server/index.cjs`)
+- 修改API逻辑，例如数据验证、不同的数据存储方式等。
+- 当前钱包数据保存在 `server/wallets.json`。
 
-### 修改游戏平衡
+### Python游戏 (Pygame - `pyrun/`)
+- 修改游戏逻辑、角色、关卡等。
+- 资源文件位于 `pyrun/assets/`，路径已在 `pyrun/config.py` 中配置为相对脚本位置加载。
 
-- **Trump属性**: 编辑 `pyrun/trump.py`
-- **Meme属性**: 编辑 `pyrun/config.py` 中的数值
-- **战斗配置**: 编辑 `pyrun/battle_config.py`
-
-### 区块链功能开发
-
-1. 在 `move/counter/sources/` 中编写Move合约
-2. 在 `src/` 中添加前端交互逻辑
-3. 更新 `src/networkConfig.ts` 配置网络参数
+### 数据同步到 `public` 目录 (可选)
+如果您希望将后端动态保存的 `server/wallets.json` 的内容在**下一次构建时**包含到静态资源中 (即复制到 `public/wallets.json` 以便通过 `dist/wallets.json` 访问)，您需要在 `npm run build` 之前手动或通过脚本完成复制。例如，修改 `package.json` 的 `build` 脚本：
+```json
+"scripts": {
+  // ...
+  "copy-wallets-to-public": "node -e \"require('fs').copyFileSync('server/wallets.json', 'public/wallets.json', (err) => { if (err) throw err; console.log('wallets.json copied to public'); });\"", // 跨平台Node.js复制
+  "build": "npm run copy-wallets-to-public && tsc && vite build"
+}
+```
+*注意: 上述 `copy-wallets-to-public` 脚本是一个简单的Node.js内联命令，用于跨平台复制。如果 `public/wallets.json` 不存在，它会创建。如果目标文件已存在，它会被覆盖。*
 
 ## 📦 构建部署
 
-### Web应用构建
+### Web应用构建 (前端 + public资源)
 ```bash
 npm run build
 ```
+构建产物将位于 `dist/` 目录。
 
-### Electron应用打包
-```bash
-npm run electron:build
-```
+### 后端服务部署
+- 后端服务 (`server/index.cjs` 和 `server/wallets.json`) 需要部署在一个Node.js运行环境中。
+- 确保 `wallets.json` 文件有写入权限。
+
+### Python游戏分发
+- 可以使用如 PyInstaller 之类的工具将Python游戏打包成可执行文件。
 
 ### 智能合约部署
 ```bash
@@ -169,40 +166,43 @@ sui client publish --gas-budget 20000000
 
 ## 📄 许可证
 
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+本项目采用 MIT 许可证 - 查看 `LICENSE` 文件了解详情 (如果项目中没有，建议添加一个)。
 
 ## 🆘 故障排除
 
 ### 常见问题
 
-**Q: Python游戏无法启动?**
-A: 确保已激活虚拟环境并安装了所有依赖：
-```bash
-cd pyrun
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
+**Q: 后端服务器无法启动或API调用失败?**
+A: 
+  - 确保已安装 `express` 和 `cors` (`npm install express cors`)。
+  - 检查 `server/index.cjs` 中的端口是否被占用 (默认为3001)。
+  - 查看后端服务器的控制台日志获取错误信息。
+  - 确认前端API调用地址 (`http://localhost:3001/api/wallets`) 正确。
+
+**Q: Python游戏无法启动或资源加载失败?**
+A: 
+  - 确保已在 `pyrun/` 目录下正确设置Python虚拟环境 (`venv`) 并已安装 `pygame` 等依赖 (通过 `pip install -r pyrun/requirements.txt`)。
+  - `pyrun/config.py` 已被修改为从脚本自身相对路径加载 `pyrun/assets/` 中的资源，通常能解决路径问题。
+  - 检查Python控制台的错误输出。
 
 **Q: Web应用无法连接钱包?**
-A: 确保已安装Sui钱包插件并已连接到正确的网络。
-
-**Q: Electron应用打包失败?**
-A: 确保已安装所有依赖并运行了 `npm run build`。
+A: 确保已安装Sui钱包浏览器插件并已连接到正确的网络。
 
 ## 🔗 相关链接
 
 - [Sui 开发文档](https://docs.sui.io/)
 - [Pygame 文档](https://www.pygame.org/docs/)
-- [Electron 文档](https://www.electronjs.org/docs)
+- [Express.js 文档](https://expressjs.com/)
+- [Node.js 文档](https://nodejs.org/)
 - [React 文档](https://react.dev/)
 
 ## 📞 联系我们
 
 如有问题或建议，请通过以下方式联系：
 
-- 创建 [Issue](../../issues)
+- 创建 [Issue](../../issues) (如果您的仓库在GitHub等平台)
 - 发送邮件至: [yucheng.huanggd@gmail.com]
 
 ---
 
-**祝您游戏愉快！🎉**
+**祝您开发愉快！🎉**
