@@ -16,11 +16,22 @@ from config import (
 from battle_config import MEME_ATTACK_INTERVAL
 
 class Game:
-    def __init__(self):
-        pygame.init()
-        pygame.font.init()  # 初始化字体模块
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption("Meme vs Trump - Pygame Edition")
+    def __init__(self, screen=None):
+        """初始化游戏
+        
+        Args:
+            screen (pygame.Surface, optional): 已初始化的屏幕对象。如果为None，则创建一个新的。
+        """
+        if screen is None:
+            # 如果没有提供屏幕对象，则初始化Pygame并创建一个新的
+            pygame.init()
+            pygame.font.init()  # 初始化字体模块
+            self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+            pygame.display.set_caption("Meme vs Trump - Pygame Edition")
+        else:
+            # 使用提供的屏幕对象
+            self.screen = screen
+        
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 48)  # 一般字体
         self.small_font = pygame.font.SysFont(None, 30)
