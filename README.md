@@ -49,7 +49,10 @@ memeVsTrump/
 │   ├── index.cjs         # 后端服务器主文件 (CommonJS模块)
 │   └── wallets.json      # 后端保存的钱包数据
 ├── move/                 # Move智能合约
-│   └── counter/          # 计数器合约
+│   └── meme_game/        # 游戏智能合约
+│       ├── sources/      # 合约源代码
+│       ├── tests/        # 合约测试
+│       └── Move.toml     # 合约配置文件
 ├── package.json          # 项目配置和脚本
 └── README.md             # 项目说明文档
 ```
@@ -109,7 +112,8 @@ Python游戏的资源（图片等）现在会从 `pyrun/assets/` 目录正确加
 1. **连接钱包**: 在Web应用 (`http://localhost:5173`) 中连接您的Sui钱包。
 2. **保存钱包信息**: 点击"保存钱包信息"按钮，数据将通过后端API保存到 `server/wallets.json`。
 3. **运行Python游戏**: Python游戏独立运行，展示Meme对战Trump的塔防场景。
-4. **(未来)**: 可以将Web端保存的钱包数据或游戏状态与Python游戏进行某种形式的交互。
+4. **抽取NFT卡牌**: 使用钱包中的SUI代币抽取Meme NFT卡牌，用于游戏中部署防御单位。
+5. **参与战斗**: 使用您的Meme NFT卡牌在游戏中部署防御单位，阻止Trump到达终点。
 
 ## 🔧 开发指南
 
@@ -124,16 +128,45 @@ Python游戏的资源（图片等）现在会从 `pyrun/assets/` 目录正确加
 - 修改游戏逻辑、角色、关卡等。
 - 资源文件位于 `pyrun/assets/`，路径已在 `pyrun/config.py` 中配置为相对脚本位置加载。
 
-### 数据同步到 `public` 目录 (可选)
-如果您希望将后端动态保存的 `server/wallets.json` 的内容在**下一次构建时**包含到静态资源中 (即复制到 `public/wallets.json` 以便通过 `dist/wallets.json` 访问)，您需要在 `npm run build` 之前手动或通过脚本完成复制。例如，修改 `package.json` 的 `build` 脚本：
-```json
-"scripts": {
-  // ...
-  "copy-wallets-to-public": "node -e \"require('fs').copyFileSync('server/wallets.json', 'public/wallets.json', (err) => { if (err) throw err; console.log('wallets.json copied to public'); });\"", // 跨平台Node.js复制
-  "build": "npm run copy-wallets-to-public && tsc && vite build"
-}
-```
-*注意: 上述 `copy-wallets-to-public` 脚本是一个简单的Node.js内联命令，用于跨平台复制。如果 `public/wallets.json` 不存在，它会创建。如果目标文件已存在，它会被覆盖。*
+### 智能合约 (Move - `move/meme_game/`)
+- 修改智能合约逻辑、添加新功能、优化现有功能。
+- 合约源代码位于 `move/meme_game/sources/`。
+- 测试文件位于 `move/meme_game/tests/`。
+
+## 🔗 智能合约功能
+
+项目使用Sui Move语言开发了三个核心智能合约模块，实现了游戏的链上功能：
+
+### 1. MemeNFT模块 (`meme_nft.move`)
+
+这个模块负责NFT的基本功能：
+
+- **NFT创建与管理**: 定义了MemeNFT结构，包含名称、描述、图片URL和稀有度等属性
+- **NFT铸造**: 支持管理员铸造和抽卡系统铸造两种方式
+- **NFT转移**: 允许用户之间转移NFT所有权
+- **稀有度系统**: 实现了1-5级的稀有度系统，影响NFT的属性和价值
+- **元数据展示**: 使用Sui的Display功能，使NFT在钱包和市场中能够正确显示
+
+### 2. 抽卡系统模块 (`card_system.move`)
+
+这个模块实现了游戏的抽卡机制：
+
+- **卡片类型管理**: 定义了不同稀有度和类型的卡片，包括普通、稀有、史诗和传奇等
+- **随机抽卡**: 基于概率分布的随机抽卡系统，稀有卡片的获取概率较低
+- **单抽与十连抽**: 支持单次抽卡和十连抽，十连抽有优惠
+- **费用管理**: 抽卡需要支付SUI代币，费用可由管理员设置
+- **自动铸造NFT**: 抽卡成功后自动调用NFT模块铸造对应的NFT
+- **抽卡记录**: 记录用户的抽卡历史，包括时间、卡片类型和NFT ID
+
+### 3. 惩罚系统模块 (`penalty_system.move`)
+
+这个模块负责游戏中的惩罚机制：
+
+- **惩罚类型**: 支持多种惩罚类型，包括警告、禁止抽卡、禁止战斗和全面禁止等
+- **时限惩罚**: 支持临时惩罚（有时间限制）和永久惩罚
+- **惩罚管理**: 管理员可以应用和解除惩罚
+- **自动过期**: 临时惩罚会自动过期，系统提供清理过期惩罚的功能
+- **状态查询**: 提供接口查询用户是否有活跃惩罚，用于前端和游戏逻辑判断
 
 ## 📦 构建部署
 
@@ -152,9 +185,14 @@ npm run build
 
 ### 智能合约部署
 ```bash
-cd move/counter
+cd move/meme_game
 sui client publish --gas-budget 20000000
 ```
+
+部署后，您需要：
+1. 记录部署生成的Package ID
+2. 更新前端代码中的合约地址（在`src/constants.ts`中）
+3. 初始化必要的合约对象（如创建卡片配置和惩罚系统）
 
 ## 🤝 贡献指南
 
@@ -188,9 +226,17 @@ A:
 **Q: Web应用无法连接钱包?**
 A: 确保已安装Sui钱包浏览器插件并已连接到正确的网络。
 
+**Q: 智能合约部署失败?**
+A:
+  - 确保已安装Sui CLI并配置了钱包。
+  - 检查钱包中是否有足够的SUI代币支付Gas费用。
+  - 检查Move.toml文件中的依赖配置是否正确。
+  - 查看部署时的错误信息，可能是合约代码中有语法或逻辑错误。
+
 ## 🔗 相关链接
 
 - [Sui 开发文档](https://docs.sui.io/)
+- [Sui Move 语言文档](https://docs.sui.io/guides/developer/sui-move-concepts)
 - [Pygame 文档](https://www.pygame.org/docs/)
 - [Express.js 文档](https://expressjs.com/)
 - [Node.js 文档](https://nodejs.org/)

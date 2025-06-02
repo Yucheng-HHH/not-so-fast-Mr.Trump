@@ -1,6 +1,8 @@
 import pygame
 import os
 import webbrowser
+import platform
+import subprocess
 from config import SCREEN_WIDTH, SCREEN_HEIGHT, BLACK, WHITE, load_image
 
 class StartScreen:
@@ -66,6 +68,46 @@ class StartScreen:
         self.close_button_rect = pygame.Rect(SCREEN_WIDTH - 40, 10, 30, 30)
         self.close_button_text = "X"
     
+    def open_chrome(self, url):
+        """使用Chrome浏览器打开指定URL
+        
+        Args:
+            url: 要打开的URL
+        """
+        try:
+            system = platform.system()
+            
+            if system == 'Windows':
+                # Windows系统
+                try:
+                    subprocess.Popen(['start', 'chrome', url], shell=True)
+                except:
+                    # 如果上面的方法失败，尝试直接调用Chrome可执行文件
+                    chrome_path = 'C:/Program Files/Google/Chrome/Application/chrome.exe %s'
+                    webbrowser.get(chrome_path).open(url)
+            
+            elif system == 'Darwin':  # macOS
+                subprocess.Popen(['open', '-a', 'Google Chrome', url])
+            
+            elif system == 'Linux':
+                # Linux系统
+                try:
+                    subprocess.Popen(['google-chrome', url])
+                except:
+                    subprocess.Popen(['google-chrome-stable', url])
+            
+            else:
+                # 其他系统，使用默认浏览器
+                webbrowser.open(url)
+                
+        except Exception as e:
+            print(f"无法使用Chrome打开URL: {e}")
+            # 如果Chrome打开失败，回退到默认浏览器
+            try:
+                webbrowser.open(url)
+            except Exception as e2:
+                print(f"无法打开浏览器: {e2}")
+    
     def handle_events(self):
         """处理用户输入事件
         
@@ -90,11 +132,8 @@ class StartScreen:
                     
                     # 检查是否点击了Connect Wallet按钮
                     if self.wallet_button_rect.collidepoint(mouse_pos):
-                        # 尝试打开Web应用
-                        try:
-                            webbrowser.open("http://localhost:5173")
-                        except Exception as e:
-                            print(f"无法打开浏览器: {e}")
+                        # 尝试使用Chrome打开Web应用
+                        self.open_chrome("http://localhost:5173")
                         return 'wallet'
         
         return None
