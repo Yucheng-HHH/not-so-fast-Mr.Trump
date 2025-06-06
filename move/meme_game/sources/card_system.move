@@ -9,7 +9,6 @@ module meme_game::card_system {
     use sui::clock::{Self, Clock};
     use sui::coin::{Self, Coin};
     use sui::sui::SUI;
-    use sui::table::{Self, Table};
     
     use meme_game::meme_nft;
     
@@ -22,16 +21,12 @@ module meme_game::card_system {
     const EInvalidCardType: u64 = 3;
     /// 概率总和不等于100
     const EProbabilityNotEqualTo100: u64 = 4;
-    /// 无效的抽卡次数
-    const EInvalidDrawCount: u64 = 5;
     
     // ===== 常量 =====
     /// 单次抽卡费用（0.01 SUI）
     const SINGLE_DRAW_FEE: u64 = 10_000_000;
     /// 十连抽费用（0.09 SUI，打9折）
     const TEN_DRAW_FEE: u64 = 90_000_000;
-    /// 最大抽卡次数
-    const MAX_DRAW_COUNT: u8 = 10;
     
     // ===== 类型定义 =====
     
@@ -387,20 +382,11 @@ module meme_game::card_system {
         
         // 铸造NFT
         let nft_id = meme_nft::mint_from_card_system(
-            string::bytes(&name),
-            string::bytes(&description),
-            string::bytes(&url),
+            string::to_bytes(copy name),
+            string::to_bytes(copy description),
+            string::to_bytes(copy url),
             card_type.rarity,
             recipient,
-            ctx
-        );
-        
-        // 更新用户抽卡历史
-        update_user_draw_history(
-            recipient,
-            timestamp,
-            card_type.id,
-            nft_id,
             ctx
         );
         
@@ -415,50 +401,13 @@ module meme_game::card_system {
         });
     }
     
-    /// 更新用户抽卡历史
-    fun update_user_draw_history(
-        user: address,
-        timestamp: u64,
-        card_type_id: u8,
-        nft_id: ID,
-        ctx: &mut TxContext
-    ) {
-        // 创建抽卡记录
-        let record = DrawRecord {
-            timestamp,
-            card_type_id,
-            nft_id
-        };
-        
-        // 查找用户是否已有历史记录对象，如果没有则创建
-        let sender = tx_context::sender(ctx);
-        
-        if (sender == user) {
-            // 如果是用户自己调用，尝试获取现有历史记录
-            if (exists<UserDrawHistory>(user)) {
-                let history = borrow_global_mut<UserDrawHistory>(user);
-                vector::push_back(&mut history.records, record);
-                history.total_draws = history.total_draws + 1;
-            } else {
-                // 创建新的历史记录
-                let history = create_user_draw_history(user, ctx);
-                vector::push_back(&mut history.records, record);
-                history.total_draws = history.total_draws + 1;
-                transfer::transfer(history, user);
-            }
-        } else {
-            // 如果是代表用户调用（例如游戏服务器），只发送事件，不更新链上历史
-            // 这种情况下，前端应用需要自行跟踪用户的抽卡历史
-        }
-    }
-    
     /// 根据概率选择卡片类型
     fun select_card_type(card_types: &vector<CardType>, seed: u64): CardType {
         let len = vector::length(card_types);
         assert!(len > 0, EInvalidCardType);
         
         // 生成0-99之间的随机数
-        let random = (seed % 100) as u8;
+        let random = ((seed % 100) as u8);
         
         let cumulative = 0u8;
         let i = 0;
@@ -480,16 +429,9 @@ module meme_game::card_system {
     
     /// 生成卡片完整URL
     fun generate_card_url(prefix: &String, card_id: u64): String {
-        let url = *prefix;
-        string::append(&mut url, string::from_ascii(vector::empty<u8>()));
-        
-        // 将card_id转换为字符串并添加到URL
-        let id_string = u64_to_string(card_id);
-        string::append(&mut url, id_string);
-        
-        // 添加文件扩展名
-        string::append(&mut url, string::utf8(b".png"));
-        
+        let mut url = *prefix;
+        string::append_str(&mut url, u64_to_string(card_id));
+        string::append_str(&mut url, string::utf8(b".png"));
         url
     }
     
@@ -499,24 +441,24 @@ module meme_game::card_system {
             return string::utf8(b"0")
         };
         
-        let buffer = vector::empty<u8>();
-        let temp = value;
+        let mut buffer = vector::empty<u8>();
+        let mut temp = value;
         
         while (temp > 0) {
-            let digit = ((temp % 10) as u8) + 48; // '0' 的ASCII码是48
+            let digit = (((temp % 10) as u8) + 48u8);
             vector::push_back(&mut buffer, digit);
             temp = temp / 10;
         };
         
         // 反转buffer
         let len = vector::length(&buffer);
-        let i = 0;
-        let j = len - 1;
+        let mut i = 0;
+        let mut j = len - 1;
         
         while (i < j) {
-            let temp = *vector::borrow(&buffer, i);
+            let temp_val = *vector::borrow(&buffer, i);
             *vector::borrow_mut(&mut buffer, i) = *vector::borrow(&buffer, j);
-            *vector::borrow_mut(&mut buffer, j) = temp;
+            *vector::borrow_mut(&mut buffer, j) = temp_val;
             i = i + 1;
             j = j - 1;
         };

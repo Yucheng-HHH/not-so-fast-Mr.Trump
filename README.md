@@ -189,7 +189,7 @@ cd move/meme_game
 sui client publish --gas-budget 20000000
 ```
 
-部署后，您需要：
+部署后，需要：
 1. 记录部署生成的Package ID
 2. 更新前端代码中的合约地址（在`src/constants.ts`中）
 3. 初始化必要的合约对象（如创建卡片配置和惩罚系统）
@@ -204,7 +204,7 @@ sui client publish --gas-budget 20000000
 
 ## 📄 许可证
 
-本项目采用 MIT 许可证 - 查看 `LICENSE` 文件了解详情 (如果项目中没有，建议添加一个)。
+本项目采用 MIT 许可证 - 查看 `LICENSE` 文件了解详情。
 
 ## 🆘 故障排除
 
@@ -242,13 +242,4 @@ A:
 - [Node.js 文档](https://nodejs.org/)
 - [React 文档](https://react.dev/)
 
-## 📞 联系我们
 
-如有问题或建议，请通过以下方式联系：
-
-- 创建 [Issue](../../issues) (如果您的仓库在GitHub等平台)
-- 发送邮件至: [yucheng.huanggd@gmail.com]
-
----
-
-**祝您开发愉快！🎉**
